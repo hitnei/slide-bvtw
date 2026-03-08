@@ -25,47 +25,10 @@
 </head>
 
 <body>
-    <iframe id="player" src="https://www.youtube.com/embed/X7PpIndMbPg?autoplay=1&loop=1&mute=1&playlist=X7PpIndMbPg"
+    <iframe id="player"
+        src="https://www.youtube.com/embed/videoseries?list=PL8RdwKzHGzq037RVu4IFDBIxDUGxTSdSl&autoplay=1&loop=1&mute=1"
         width="100%" height="100%" allow="autoplay; encrypted-media" allowfullscreen>
     </iframe>
-
-    <script>
-        document.addEventListener("click", function () {
-            const iframe = document.getElementById("player");
-            iframe.contentWindow.postMessage(
-                '{"event":"command","func":"unMute","args":""}',
-                "*"
-            );
-        });
-    </script>
-
-    <!-- <script>
-        const videos = [
-            "https://www.youtube.com/embed/X7PpIndMbPg?list=PL8RdwKzHGzq037RVu4IFDBIxDUGxTSdSl",
-        ];
-
-        let index = 0;
-        const player = document.getElementById("player");
-
-        function playVideo(i) {
-            player.src = videos[i] + "?autoplay=1";
-        }
-
-        playVideo(index);
-
-        // simple timer fallback (if we know approximate duration)
-        const durations = [10, 12, 15]; // seconds
-
-        function nextVideo() {
-            index++;
-            if (index >= videos.length) index = 0;
-            playVideo(index);
-
-            setTimeout(nextVideo, durations[index] * 1000);
-        }
-
-        setTimeout(nextVideo, durations[index] * 1000);
-    </script> -->
 </body>
 
 </html>
