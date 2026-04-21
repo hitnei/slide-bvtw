@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Ngoại Tiết niệu A - Trung ương Huế</title>
 
     <style>
         html {
@@ -16,19 +16,108 @@
             width: 100%;
             height: 100%;
             margin: 0;
+            background-color: #000;
+        }
+
+        #player-container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
         iframe {
             border: none;
         }
+        
+        .fallback-message {
+            color: #fff;
+            font-family: sans-serif;
+            text-align: center;
+            padding: 20px;
+        }
     </style>
 </head>
 
 <body>
-    <iframe id="player"
-        src="https://www.youtube.com/embed/videoseries?list=PL8RdwKzHGzq037RVu4IFDBIxDUGxTSdSl&autoplay=1&loop=1&mute=1"
-        width="100%" height="100%" allow="autoplay; encrypted-media" allowfullscreen>
-    </iframe>
+    <div id="player-container">
+        <div id="player"></div>
+    </div>
+
+    <script>
+        var player;
+        var errorCount = 0;
+        var maxErrors = 10; // Threshold to prevent infinite loop of errors
+        var playlistId = 'PL8RdwKzHGzq037RVu4IFDBIxDUGxTSdSl';
+
+        // Load the IFrame Player API code asynchronously.
+        var tag = document.createElement('script');
+        tag.src = "https://www.youtube.com/iframe_api";
+        var firstScriptTag = document.getElementsByTagName('script')[0];
+        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+        // This function creates an <iframe> (and YouTube player) after the API code downloads.
+        function onYouTubeIframeAPIReady() {
+            player = new YT.Player('player', {
+                height: '100%',
+                width: '100%',
+                playerVars: {
+                    'listType': 'playlist',
+                    'list': playlistId,
+                    'autoplay': 1,
+                    'loop': 1,
+                    'mute': 1,
+                    'playsinline': 1
+                },
+                events: {
+                    'onReady': onPlayerReady,
+                    'onStateChange': onPlayerStateChange,
+                    'onError': onPlayerError
+                }
+            });
+        }
+
+        function onPlayerReady(event) {
+            event.target.playVideo();
+        }
+
+        function onPlayerStateChange(event) {
+            // Reset error count when a video successfully starts playing
+            if (event.data === YT.PlayerState.PLAYING) {
+                errorCount = 0;
+            }
+        }
+
+        function onPlayerError(event) {
+            /*
+             * Error Codes:
+             * 2: Invalid parameter.
+             * 5: HTML5 player error.
+             * 100: Video not found (removed/private).
+             * 101/150: Video owner does not allow embedding (often the case for age-restricted or region-locked content).
+             */
+            console.warn("YouTube Player Error code:", event.data);
+            errorCount++;
+
+            if (errorCount < maxErrors) {
+                console.log("Attempting to skip to the next video...");
+                // Introduce a slight delay before skipping to avoid rapid-fire API requests
+                setTimeout(function() {
+                    if (player && typeof player.nextVideo === 'function') {
+                        player.nextVideo();
+                    }
+                }, 1000);
+            } else {
+                console.error("Too many consecutive playback errors. Halting playback.");
+                // Show a fallback UI to the user
+                var container = document.getElementById('player-container');
+                if (container) {
+                    container.innerHTML = '<div class="fallback-message"><h2>Content Unavailable</h2><p>Unable to play videos due to platform restrictions (e.g., age or region limits).</p><p>Please <a href="https://www.youtube.com/playlist?list=' + playlistId + '" target="_blank" style="color: #3ea6ff;">watch on YouTube</a>.</p></div>';
+                }
+            }
+        }
+    </script>
 </body>
 
 </html>
